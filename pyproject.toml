@@ -1,0 +1,59 @@
+[tool.poetry]
+name = "django-cached-auth-middleware"
+version = "0.1.0"
+
+authors = [
+    "Sector Labs <open-source@sectorlabs.ro>"
+]
+
+repository = "https://github.com/sectorlabs/django-cache-auth-middleware"
+description = "Drop-in replacement for `django.contrib.auth.middleware.AuthenticationMiddleware` with cached `request.user`"
+readme = ["README.md", "LICENSE"]
+keywords = ["django", "authentication", "redis", "cache", "middleware"]
+
+[tool.poetry.dependencies]
+python = ">=3.8"
+django = ">=3.2.12,<5.0.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.1"
+black = "22.3.0"
+ruff = "0.0.253"
+poethepoet = "0.19.0"
+pytest-django = "4.5.2"
+
+[tool.poe.tasks]
+fix = ["format", "lint_fix"]
+verify = ["verify_format", "lint"]
+
+format = "python -m black --config pyproject.toml ."
+verify_format = "python -m black --config pyproject.toml --check ."
+
+lint = "python -m ruff check --config ruff.toml ."
+lint_fix = "python -m ruff check --config ruff.toml --fix ."
+
+[tool.black]
+line-length = 110
+target-version = ["py39"]
+include = ".pyi?$"
+exclude = '''
+/( # Default config
+   \.git
+  | \.hg
+  | \.tox
+  | \.venv
+  | build
+  | dist
+  | node_modules
+  | migrations
+  | env
+  | .env
+  | venv
+  | .venv
+  | .pytest_cache
+  | .pipcache
+)/
+'''
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "tests.django.settings"
