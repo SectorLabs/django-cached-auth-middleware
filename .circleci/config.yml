@@ -1,0 +1,51 @@
+version: 2.1
+
+jobs:
+  release:
+    docker:
+      - image: python:3.8-slim-bullseye
+    steps:
+      - checkout
+      - run:
+          name: Install packages
+          command: pip install .[publish]
+      - run:
+          name: Set version number
+          command: cat django_cached_auth_middleware/_version.py | sed "s/^__version__.*/__version__ = \"${CIRCLE_TAG:1}\"/g" | tee django_cached_auth_middleware/_version.py
+      - run:
+          name: Build package
+          command: python -m build --wheel
+      - run:
+          name: Publish package
+          command: >
+            python -m twine upload --repository-url "${PYPI_REPO_URL}"
+            --username "${PYPI_REPO_USERNAME}"
+            --password "${PYPI_REPO_PASSWORD}"
+            dist/*
+  test:
+    docker:
+      - image: python:3.8-buster
+    steps:
+      - checkout
+      - run:
+          name: Install packages
+          command: pip install .[test,django]
+      - run:
+          name: Lint
+          command: poe verify
+      - run:
+          name: Test
+          command: poe test
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - test
+      - release:
+          context: pypi-repo
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v(.+)/

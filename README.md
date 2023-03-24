@@ -1,3 +1,5 @@
+[![<SectorLabs>](https://circleci.com/gh/SectorLabs/django-cached-auth-middleware.svg?style=svg)](https://app.circleci.com/pipelines/github/SectorLabs/django-cached-auth-middleware)
+
 Drop-in replacement for `django.contrib.auth.middleware.AuthenticationMiddleware` with cached `request.user`
 
 While this middleware will work with any type of cache, it only makes sense to use it with caches
