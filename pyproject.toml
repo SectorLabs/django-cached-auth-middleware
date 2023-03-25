@@ -1,26 +1,40 @@
-[tool.poetry]
-name = "django-cached-auth-middleware"
-version = "0.1.0"
+[build-system]
+requires = ["setuptools >= 64"]
+build-backend = "setuptools.build_meta"
 
+[project]
+name = "django_cached_auth_middleware"
+dynamic = ["version"]
 authors = [
-    "Sector Labs <open-source@sectorlabs.ro>"
+    {name = "Sector Labs", email = "open-source@sectorlabs.ro"},
 ]
-
-repository = "https://github.com/sectorlabs/django-cache-auth-middleware"
 description = "Drop-in replacement for `django.contrib.auth.middleware.AuthenticationMiddleware` with cached `request.user`"
-readme = ["README.md", "LICENSE"]
-keywords = ["django", "authentication", "redis", "cache", "middleware"]
+requires-python = ">=3.8"
+license = { text = "MIT" }
+readme = "README.md"
 
-[tool.poetry.dependencies]
-python = ">=3.8"
-django = ">=3.2.12,<5.0.0"
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "black",
+    "ruff",
+    "poethepoet",
+    "pytest-django"
+]
+publish = [
+    "build==0.10.0",
+    "twine==4.0.2",
+]
+django = ["django>=3.2.12,<5.0.0"]
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^7.2.1"
-black = "22.3.0"
-ruff = "0.0.253"
-poethepoet = "0.19.0"
-pytest-django = "4.5.2"
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["django_cached_auth_middleware*"]
+exclude = ["django_cached_auth_middleware.tests*"]
+namespaces = false
+
+[tool.setuptools.dynamic]
+version = { attr = "django_cached_auth_middleware.__version__" }
 
 [tool.poe.tasks]
 fix = ["format", "lint_fix"]
@@ -31,6 +45,8 @@ verify_format = "python -m black --config pyproject.toml --check ."
 
 lint = "python -m ruff check --config ruff.toml ."
 lint_fix = "python -m ruff check --config ruff.toml --fix ."
+
+test = "python -m pytest"
 
 [tool.black]
 line-length = 110
@@ -56,4 +72,4 @@ exclude = '''
 '''
 
 [tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "tests.django.settings"
+DJANGO_SETTINGS_MODULE = "django_cached_auth_middleware.tests.django.settings"
