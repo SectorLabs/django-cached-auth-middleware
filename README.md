@@ -23,4 +23,7 @@ Replace `django.contrib.auth.middleware.AuthenticationMiddleware` with
 Set `DJANGO_CACHED_AUTH_TIMEOUT_SECONDS` to the amount of seconds you want the sessions to be stored.
 If this env var is not set, the sessions will be stored forever.
 
+Set `DJANGO_CACHED_AUTH_ENABLED` to `False`, if you want to fallback to the
+`django.contrib.auth.middleware.AuthenticationMiddleware` functionality.
+
 Inspired from [django-cached_authentication_middleware](https://github.com/ui/django-cached_authentication_middleware)

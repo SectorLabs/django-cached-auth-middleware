@@ -124,3 +124,18 @@ def test_cached_user_set_cache_exception(mocked_cache, mocked_get_auth_user):
     mocked_cache.get.assert_called_with(UserCache.make_key(DB_USER.id))
     mocked_cache.set.assert_called_with(UserCache.make_key(DB_USER.id), DB_USER, timeout=None)
     mocked_get_auth_user.assert_called_with(request)
+
+
+@override_settings(DJANGO_CACHED_AUTH_ENABLED=False)
+def test_django_cached_auth_disabled(mocked_cache, mocked_get_auth_user):
+    # User is in Session, so the middleware should attempt to get/fetch
+    # from the cache, unless it was disabled.
+    request = MockedRequest(session={SESSION_KEY: DB_USER.id})
+
+    CachedAuthenticationMiddleware(get_request=MagicMock()).process_request(request)
+
+    assert request.user == DB_USER
+    assert not mocked_cache.get.called
+    assert not mocked_cache.set.called
+
+    mocked_get_auth_user.assert_called_with(request)

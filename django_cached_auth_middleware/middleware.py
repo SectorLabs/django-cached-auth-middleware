@@ -22,6 +22,9 @@ class UserCache:
         self.timeout = getattr(settings, "DJANGO_CACHED_AUTH_TIMEOUT_SECONDS", None)
 
     def get(self, request):
+        if not self._cache:
+            return None
+
         try:
             key = self.make_key(request.session[SESSION_KEY])
         except KeyError:
@@ -30,6 +33,9 @@ class UserCache:
         return self._cache.get(key)
 
     def set(self, user):
+        if not self._cache:
+            return
+
         if user is None:
             return
 
@@ -37,6 +43,9 @@ class UserCache:
         self._cache.set(key, user, timeout=self.timeout)
 
     def delete(self, user):
+        if not self._cache:
+            return
+
         if user is None:
             return
 
@@ -83,12 +92,16 @@ def get_and_cache_user(cache, request):
 class CachedAuthenticationMiddleware(AuthenticationMiddleware):
     def __init__(self, get_request):
         self._session_cache_alias = getattr(settings, "SESSION_CACHE_ALIAS", "default")
+        self._enabled = getattr(settings, "DJANGO_CACHED_AUTH_ENABLED", True)
 
-        self.cache = caches[self._session_cache_alias]
-        self.invalidate_cache = cache_invalidation_factory(self.cache)
+        if self._enabled:
+            self.cache = caches[self._session_cache_alias]
+            self.invalidate_cache = cache_invalidation_factory(self.cache)
 
-        post_save.connect(self.invalidate_cache, sender=USER_MODEL)
-        post_delete.connect(self.invalidate_cache, sender=USER_MODEL)
+            post_save.connect(self.invalidate_cache, sender=USER_MODEL)
+            post_delete.connect(self.invalidate_cache, sender=USER_MODEL)
+        else:
+            self.cache = None
 
         super().__init__(get_request)
 
